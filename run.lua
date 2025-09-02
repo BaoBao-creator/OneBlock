@@ -67,7 +67,7 @@ local function automine(state)
             end
         end
     end
-    updateConnection()
+    updateconnection()
 end
 local function autoLoot(state)
     looting = state
@@ -78,5 +78,5 @@ local function autoLoot(state)
             end
         end
     end
-    updateConnection()
+    updateconnection()
 end
