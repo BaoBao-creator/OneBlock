@@ -4,8 +4,10 @@ local players = game:GetService("Players")
 -- Data
 local localplayer = players.LocalPlayer
 local playername = localplayer.Name
+-- Toogles
+local mining = false
 -- Connections
-local workspaceconnection = false
+local workspaceconnection
 local function mine(toolname, block)
   local blockinfo = block.BlockInfo
   local maxhealth = blockinfo.MaxHealth
@@ -17,14 +19,14 @@ local function loot(drop)
   replicatedstorage.LootDestroyed:FireServer(uuid)
 end
 local function automine(v)
-    collectingFairy = v
-    if collectingFairy then
+    mining = v
+    if mining then
         for _, obj in ipairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and tonumber(obj.Name) then
-                collectFairy(obj)
+            if obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then
+                mine(obj)
             end
         end
-        fairyConnection = workspace.ChildAdded:Connect(function(obj)
+        workspaceconnection = workspace.ChildAdded:Connect(function(obj)
             if obj:IsA("Model") and tonumber(obj.Name) then
                 local prompt = obj:WaitForChild("ProximityPrompt", 5)
                 if prompt and collectingFairy then
