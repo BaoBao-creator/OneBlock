@@ -1,45 +1,89 @@
 -- Services
-local replicatedstorage = game:GetService("ReplicatedStorage")
-local players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+
 -- Data
-local localplayer = players.LocalPlayer
-local playername = localplayer.Name
--- Toogles
+local LocalPlayer = Players.LocalPlayer
+local PlayerName = LocalPlayer.Name
+
+-- Toggles
 local mining = false
+local looting = false
+
 -- Connections
-local workspaceconnection
-local function mine(toolname, block)
-  local blockinfo = block.BlockInfo
-  local maxhealth = blockinfo.MaxHealth
-  workspace[playername][toolname].ToolHit:FireServer({{["healthValue"] = blockinfo.Health,["blockInfoFolder"] = blockinfo,["position"] = block.WorldPivot.Position,["object"] = block,["maxHealthValue"] = maxhealth,["maxHealth"] = maxhealth.Value,["healthBarGui"] = block.HealthBar,["hardness"] = blockinfo.BlockHardness.Value,["health"] = blockinfo.Health.Value}}, toolname)
+local workspaceConnection
+
+-- Functions
+local function mine(toolName, block)
+    local blockInfo = block.BlockInfo
+    local maxHealth = blockInfo.MaxHealth
+
+    Workspace[PlayerName][toolName].ToolHit:FireServer({{
+        ["healthValue"]    = blockInfo.Health,
+        ["blockInfoFolder"] = blockInfo,
+        ["position"]        = block.WorldPivot.Position,
+        ["object"]          = block,
+        ["maxHealthValue"]  = maxHealth,
+        ["maxHealth"]       = maxHealth.Value,
+        ["healthBarGui"]    = block.HealthBar,
+        ["hardness"]        = blockInfo.BlockHardness.Value,
+        ["health"]          = blockInfo.Health.Value
+    }}, toolName)
 end
+
 local function loot(drop)
-  local uuid = drop:GetAttribute("UUID")
-  replicatedstorage.RequestLootPickup:InvokeServer(uuid)
-  replicatedstorage.LootDestroyed:FireServer(uuid)
+    local uuid = drop:GetAttribute("UUID")
+    ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
+    ReplicatedStorage.LootDestroyed:FireServer(uuid)
 end
-local function automine(v)
-    mining = v
-    if mining then
-        for _, obj in ipairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then
-                mine(obj)
+
+-- Hàm bật/tắt connection chung
+local function updateConnection(toolName)
+    if (mining or looting) and not workspaceConnection then
+        workspaceConnection = Workspace.ChildAdded:Connect(function(obj)
+            if mining and obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then
+                mine(toolName, obj)
+            elseif
             end
-        end
-        workspaceconnection = workspace.ChildAdded:Connect(function(obj)
-            if obj:IsA("Model") and tonumber(obj.Name) then
+            -- Xử lý cho loot (sau này bạn bổ sung thêm)
+            if looting and obj:IsA("Model") and obj:FindFirstChild("ProximityPrompt") then
                 local prompt = obj:WaitForChild("ProximityPrompt", 5)
                 if prompt and collectingFairy then
                     fireproximityprompt(prompt)
                 end
             end
         end)
-    else
-        if fairyConnection then
-            fairyConnection:Disconnect()
-            fairyConnection = nil
-        end
+
+    elseif not mining and not looting and workspaceConnection then
+        -- Ngắt nếu cả 2 đều tắt
+        workspaceConnection:Disconnect()
+        workspaceConnection = nil
     end
 end
-local function autoloot()
+
+-- AutoMine toggle
+local function autoMine(state, toolName)
+    mining = state
+    if mining then
+        for _, obj in ipairs(Workspace:GetChildren()) do
+            if obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then
+                mine(toolName, obj)
+            end
+        end
+    end
+    updateConnection(toolName)
+end
+
+-- AutoLoot toggle
+local function autoLoot(state)
+    looting = state
+    if looting then
+        for _, drop in ipairs(Workspace:GetChildren()) do
+            if drop:GetAttribute("UUID") then
+                loot(drop)
+            end
+        end
+    end
+    updateConnection()
 end
