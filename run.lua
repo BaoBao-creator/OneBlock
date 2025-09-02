@@ -10,6 +10,7 @@ local PlayerName = LocalPlayer.Name
 -- Toggles
 local mining = false
 local looting = false
+local toolName = ""
 
 -- Connections
 local workspaceConnection
@@ -38,32 +39,22 @@ local function loot(drop)
     ReplicatedStorage.LootDestroyed:FireServer(uuid)
 end
 
--- Hàm bật/tắt connection chung
-local function updateConnection(toolName)
+local function updateConnection()
     if (mining or looting) and not workspaceConnection then
         workspaceConnection = Workspace.ChildAdded:Connect(function(obj)
             if mining and obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then
                 mine(toolName, obj)
-            elseif
-            end
-            -- Xử lý cho loot (sau này bạn bổ sung thêm)
-            if looting and obj:IsA("Model") and obj:FindFirstChild("ProximityPrompt") then
-                local prompt = obj:WaitForChild("ProximityPrompt", 5)
-                if prompt and collectingFairy then
-                    fireproximityprompt(prompt)
-                end
+            elseif looting and obj:IsA("Model") and obj:FindFirstChild("Info") then
+                loot(obj)
             end
         end)
-
     elseif not mining and not looting and workspaceConnection then
-        -- Ngắt nếu cả 2 đều tắt
         workspaceConnection:Disconnect()
         workspaceConnection = nil
     end
 end
 
--- AutoMine toggle
-local function autoMine(state, toolName)
+local function autoMine(state)
     mining = state
     if mining then
         for _, obj in ipairs(Workspace:GetChildren()) do
@@ -72,15 +63,14 @@ local function autoMine(state, toolName)
             end
         end
     end
-    updateConnection(toolName)
+    updateConnection()
 end
 
--- AutoLoot toggle
 local function autoLoot(state)
     looting = state
     if looting then
         for _, drop in ipairs(Workspace:GetChildren()) do
-            if drop:GetAttribute("UUID") then
+            if drop:IsA("Model") and drop:FindFirstChild("Info") and drop:GetAttribute("UUID") then
                 loot(drop)
             end
         end
