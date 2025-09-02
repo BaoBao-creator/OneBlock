@@ -24,17 +24,20 @@ local function mine(block)
     if not toolname then return end
     local blockInfo = block.BlockInfo
     local maxHealth = blockInfo.MaxHealth
-    Workspace[PlayerName][toolname].ToolHit:FireServer({{
-        ["healthValue"]    = blockInfo.Health,
-        ["blockInfoFolder"] = blockInfo,
-        ["position"]        = block.WorldPivot.Position,
-        ["object"]          = block,
-        ["maxHealthValue"]  = maxHealth,
-        ["maxHealth"]       = maxHealth.Value,
-        ["healthBarGui"]    = block.HealthBar,
-        ["hardness"]        = blockInfo.BlockHardness.Value,
-        ["health"]          = blockInfo.Health.Value
-    }}, toolname)
+    while block and block.Parent == workspace do
+        Workspace[PlayerName][toolname].ToolHit:FireServer({{
+            ["healthValue"]    = blockInfo.Health,
+            ["blockInfoFolder"] = blockInfo,
+            ["position"]        = block.WorldPivot.Position,
+            ["object"]          = block,
+            ["maxHealthValue"]  = maxHealth,
+            ["maxHealth"]       = maxHealth.Value,
+            ["healthBarGui"]    = block.HealthBar,
+            ["hardness"]        = blockInfo.BlockHardness.Value,
+            ["health"]          = blockInfo.Health.Value
+        }}, toolname)
+        task.wait(0.2)
+    end
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
