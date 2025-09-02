@@ -22,19 +22,24 @@ local function isdrop(obj)
 end
 local function mine(block)
     if not toolname then return end
-    local blockInfo = block.BlockInfo
-    local maxHealth = blockInfo.MaxHealth
+    local blockinfo = block.BlockInfo
+    local maxhealth = blockIinfo.MaxHealth
+    local health = blockinfo.Health
+    local position = block.WorldPivot.Position
+    local maxhealthvalue = maxhealth.Value
+    local healthbar = block.HealthBar
+    local hardness = blockinfo.BlockHardness.Value
     while block and block.Parent == workspace do
         Workspace[PlayerName][toolname].ToolHit:FireServer({{
-            ["healthValue"]    = blockInfo.Health,
-            ["blockInfoFolder"] = blockInfo,
-            ["position"]        = block.WorldPivot.Position,
+            ["healthValue"]    = health,
+            ["blockInfoFolder"] = blockinfo,
+            ["position"]        = position,
             ["object"]          = block,
-            ["maxHealthValue"]  = maxHealth,
-            ["maxHealth"]       = maxHealth.Value,
-            ["healthBarGui"]    = block.HealthBar,
-            ["hardness"]        = blockInfo.BlockHardness.Value,
-            ["health"]          = blockInfo.Health.Value
+            ["maxHealthValue"]  = maxhealth,
+            ["maxHealth"]       = maxhealthvalue,
+            ["healthBarGui"]    = healthbar,
+            ["hardness"]        = hardness,
+            ["health"]          = health.Value
         }}, toolname)
         task.wait(0.2)
     end
