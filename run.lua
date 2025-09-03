@@ -48,6 +48,78 @@ local function isdrop(obj)
     return false
 end
 local function mine(block)
+    print("[mine] Called with block:", block.Name)
+    currentblock = block
+    task.spawn(function()
+        print("[mine] Task started for block:", block.Name)
+
+        local toolname = tools[getrighttool(block)]
+        local tool = backpackfolder[toolname]
+        print("[mine] Tool selected:", toolname, tool and "Tool exists" or "Tool is nil")
+
+        local blockinfo = block.BlockInfo
+        local maxhealth = blockinfo.MaxHealth
+        local health = blockinfo.Health
+        local position = block.WorldPivot.Position
+        local maxhealthvalue = maxhealth.Value
+        local healthbar = block.HealthBar
+        local hardness = blockinfo.BlockHardness.Value
+
+        print("[mine] Block info loaded. MaxHealth:", maxhealthvalue, "Hardness:", hardness)
+
+        while block and block.Parent == workspace do
+            if not mining then
+                print("[mine] Mining stopped, exiting loop")
+                return
+            end
+
+            holditem(tool)
+            print("[mine] Holding tool:", toolname, "Hitting block:", block.Name, "Health:", health.Value)
+
+            Workspace[PlayerName][toolname].ToolHit:FireServer({{
+                ["healthValue"]    = health,
+                ["blockInfoFolder"] = blockinfo,
+                ["position"]        = position,
+                ["object"]          = block,
+                ["maxHealthValue"]  = maxhealth,
+                ["maxHealth"]       = maxhealthvalue,
+                ["healthBarGui"]    = healthbar,
+                ["hardness"]        = hardness,
+                ["health"]          = health.Value
+            }}, toolname)
+
+            task.wait(hitdelay)
+        end
+
+        print("[mine] Block destroyed or removed:", block.Name)
+        currentblock = nil
+    end)
+end
+local function automine(state)
+    print("[automine] Called with state =", state)
+    mining = state
+    if mining then
+        print("[automine] Mining started")
+        if currentblock then
+            print("[automine] Current block exists, mining it:", currentblock.Name)
+            mine(currentblock)
+        else
+            print("[automine] No current block, searching in Workspace...")
+            for _, obj in ipairs(Workspace:GetChildren()) do
+                if isblock(obj) then
+                    print("[automine] Found block:", obj.Name)
+                    mine(obj)
+                    break
+                end
+            end
+        end
+    else
+        print("[automine] Mining stopped")
+    end
+    updateconnection()
+    print("[automine] Finished function")
+end
+local function mmine(block)
     currentblock = block
     task.spawn(function()
         local toolname = tools[getrighttool(block)]
@@ -85,19 +157,22 @@ local function loot(drop)
 end
 local function updateconnection()
     if (mining or looting) and not workspaceconnection then
+        print("addconnect")
         workspaceconnection = Workspace.ChildAdded:Connect(function(obj)
             if mining and isblock(obj) then
+                print("newblock added")
                 mine(obj)
             elseif looting and isdrop(obj) then
                 loot(obj)
             end
         end)
     elseif not mining and not looting and workspaceconnection then
+        print("remove connect")
         workspaceconnection:Disconnect()
         workspaceconnection = nil
     end
 end
-local function automine(state)
+local function mautomine(state)
     mining = state
     if mining then
         if currentblock then
