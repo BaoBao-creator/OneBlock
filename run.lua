@@ -33,6 +33,8 @@ end
 local function tpis(name)
     if name == "Spawn" then
         hrp.CFrame = CFrame.new(Vector3.new(0, 20, 0))
+        return
+    end
     local island = workspace:FindFirstChild(name)
     if island and island:IsA("Model") then
         hrp.CFrame = CFrame.new(island.WorldPivot.Position + Vector3.new(0, 20, 0))
@@ -250,7 +252,6 @@ local IslandToTeleportDropdown = TeleportTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "IslandDropdown", 
     Callback = function(v)
-        if v == "Spawn" then
-            
+        tpis(v)
     end
 })
