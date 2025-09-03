@@ -49,32 +49,34 @@ local function isdrop(obj)
 end
 local function mine(block)
     currentblock = block
-    local toolname = tools[getrighttool(block)]
-    local tool = backpackfolder[toolname]
-    local blockinfo = block.BlockInfo
-    local maxhealth = blockinfo.MaxHealth
-    local health = blockinfo.Health
-    local position = block.WorldPivot.Position
-    local maxhealthvalue = maxhealth.Value
-    local healthbar = block.HealthBar
-    local hardness = blockinfo.BlockHardness.Value
-    while block and block.Parent == workspace do
-        if not mining then return end
-        holditem(tool)
-        Workspace[PlayerName][toolname].ToolHit:FireServer({{
-            ["healthValue"]    = health,
-            ["blockInfoFolder"] = blockinfo,
-            ["position"]        = position,
-            ["object"]          = block,
-            ["maxHealthValue"]  = maxhealth,
-            ["maxHealth"]       = maxhealthvalue,
-            ["healthBarGui"]    = healthbar,
-            ["hardness"]        = hardness,
-            ["health"]          = health.Value
-        }}, toolname)
-        task.wait(hitdelay)
-    end
-    currentblock = nil
+    task.spawn(function()
+        local toolname = tools[getrighttool(block)]
+        local tool = backpackfolder[toolname]
+        local blockinfo = block.BlockInfo
+        local maxhealth = blockinfo.MaxHealth
+        local health = blockinfo.Health
+        local position = block.WorldPivot.Position
+        local maxhealthvalue = maxhealth.Value
+        local healthbar = block.HealthBar
+        local hardness = blockinfo.BlockHardness.Value
+        while block and block.Parent == workspace do
+            if not mining then return end
+            holditem(tool)
+            Workspace[PlayerName][toolname].ToolHit:FireServer({{
+                ["healthValue"]    = health,
+                ["blockInfoFolder"] = blockinfo,
+                ["position"]        = position,
+                ["object"]          = block,
+                ["maxHealthValue"]  = maxhealth,
+                ["maxHealth"]       = maxhealthvalue,
+                ["healthBarGui"]    = healthbar,
+                ["hardness"]        = hardness,
+                ["health"]          = health.Value
+            }}, toolname)
+            task.wait(hitdelay)
+        end
+        currentblock = nil
+    end)
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
