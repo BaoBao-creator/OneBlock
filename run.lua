@@ -2,7 +2,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
@@ -22,10 +22,9 @@ local looting = false
 local workspaceconnection
 -- Functions
 local function click()
-    UIS.InputBegan:Fire({
-        UserInputType=Enum.UserInputType.MouseButton1,
-        UserInputState=Enum.UserInputState.Begin
-    })
+    VIM:SendMouseButtonEvent(9999, 9999, 0, true, game, 0)
+    task.wait()
+    VIM:SendMouseButtonEvent(9999, 9999, 0, false, game, 0)
 end
 local function holditem(tool)
     humanoid:EquipTool(tool)
@@ -87,9 +86,21 @@ local function mine(block)
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
-    ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
-    task.wait(0.5)
-    ReplicatedStorage.LootDestroyed:FireServer(uuid)
+    if uuid then
+        local success = pcall(function()
+            return ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
+        end)
+        if success then
+            pcall(function()
+                ReplicatedStorage.LootDestroyed:FireServer(uuid)
+            end)
+            task.delay(1, function()
+                if drop and drop.Parent == Workspace then
+                    drop:Destroy()
+                end
+            end)
+        end
+    end
 end
 local function updateconnection()
     if looting and not workspaceconnection then
