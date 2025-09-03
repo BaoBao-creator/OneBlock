@@ -95,3 +95,42 @@ local function autoloot(state)
     end
     updateconnection()
 end
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+    Name = "Simple Hub",
+    LoadingTitle = "Welcome!",
+    LoadingSubtitle = "by BaoBao",
+    ShowText = "UI",
+    Theme = "Bloom",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "SimpleHub_OneBlock Config"
+    }
+})
+local FarmTab = Window:CreateTab("Farm", 0)
+local AutoMineBlockToggle = FarmTab:CreateToggle({
+    Name = "Auto Mine Block",
+    Flag = "AutoMineBlockToggle",
+    Callback = function(v)
+        automine(v)
+    end
+})
+local HitDelaySlider = FarmTab:CreateSlider({
+    Name = "Hit Delay",
+    Range = {0.1, 1},
+    Increment = 0.1,
+    Suffix = "s",
+    CurrentValue = 0.2,
+    Flag = "HitDelaySlider",
+    Callback = function(v)
+        hitdelay = v
+    end
+})
+local AutoCollectDropToggle = FarmTab:CreateToggle({
+    Name = "Auto Collect Drops",
+    Flag = "AutoCollectDropToggle",
+    Callback = function(v)
+        autoloot(v)
+    end
+})
