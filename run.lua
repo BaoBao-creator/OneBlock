@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local VIM = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
@@ -30,6 +31,18 @@ local function hit(mob)
 --workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.AngryMiner1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.AngryMiner1.HumanoidRootPart,["humanoid"] = workspace.AngryMiner1.Humanoid},{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 85,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
 --workspace[PlayerName][weaponname].ToolHit:FireServer(weaponname, {{["isNPC"] = true, ["character"] = mob, ["health"] = health
 end
+local function tweenTP(targetPos)
+    local distance = (targetPos - hrp.Position).Magnitude
+    local speed = 50
+    local time = distance / speed
+    local tween = TweenService:Create(
+        hrp,
+        TweenInfo.new(time, Enum.EasingStyle.Linear),
+        {CFrame = CFrame.new(targetPos)}
+    )
+    tween:Play()
+    tween.Completed:Wait()
+end
 local function tpis(name)
     if name == "Spawn" then
         hrp.CFrame = CFrame.new(Vector3.new(0, 20, 0))
@@ -37,7 +50,7 @@ local function tpis(name)
     end
     local island = workspace:FindFirstChild(name)
     if island and island:IsA("Model") then
-        hrp.CFrame = CFrame.new(island.WorldPivot.Position + Vector3.new(0, 20, 0))
+        tweenTP(island.WorldPivot.Position + Vector3.new(0, 20, 0))
     end
 end
 local function click()
