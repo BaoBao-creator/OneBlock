@@ -23,6 +23,7 @@ local function getbackpackitem()
     for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do
         table.insert(names, i.Name)
     end
+    return names
 end
 local backpack = getbackpackitem()
 local function getrighttool(model)
@@ -41,7 +42,6 @@ local function isdrop(obj)
     return false
 end
 local function mine(block)
-    if not toolname then return end
     currentblock = block
     local toolname = tools[getrighttool(block)]
     local blockinfo = block.BlockInfo
