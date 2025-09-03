@@ -32,6 +32,7 @@ local function mine(block)
     local healthbar = block.HealthBar
     local hardness = blockinfo.BlockHardness.Value
     while block and block.Parent == workspace do
+        if not mining then return end
         Workspace[PlayerName][toolname].ToolHit:FireServer({{
             ["healthValue"]    = health,
             ["blockInfoFolder"] = blockinfo,
