@@ -2,7 +2,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local VirtualUser = game:GetService("VirtualUser")
+local UIS = game:GetService("UserInputService")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
@@ -22,7 +22,10 @@ local looting = false
 local workspaceconnection
 -- Functions
 local function click()
-    VirtualUser:ClickButton1(Vector2.new())
+    UIS.InputBegan:Fire({
+        UserInputType=Enum.UserInputType.MouseButton1,
+        UserInputState=Enum.UserInputState.Begin
+    })
 end
 local function holditem(tool)
     humanoid:EquipTool(tool)
