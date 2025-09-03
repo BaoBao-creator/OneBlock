@@ -55,31 +55,38 @@ local function isdrop(obj)
     return false
 end
 local function mine(block)
-    local toolname = tools[getrighttool(block)]
-    local tool = backpackfolder[toolname]
-    local blockinfo = block.BlockInfo
-    local maxhealth = blockinfo.MaxHealth
-    local health = blockinfo.Health
+    local tooltype = getrighttool(block)
+    local toolname = tools[tooltype]
+    if not toolname then return end
+    local tool = backpackfolder:FindFirstChild(toolname)
+    if not tool and not isequip(toolname) then return end
+    if not isequip(toolname) and tool then
+        holditem(tool)
+        task.wait(0.1)
+    end
+    local blockinfo = block:FindFirstChild("BlockInfo")
+    if not blockinfo then return end
+    local maxhealth = blockinfo:FindFirstChild("MaxHealth")
+    local health = blockinfo:FindFirstChild("Health")
+    local hardness = blockinfo:FindFirstChild("BlockHardness")
+    if not (maxhealth and health and hardness) then return end
     local position = block.WorldPivot.Position
     local maxhealthvalue = maxhealth.Value
-    local healthbar = block.HealthBar
-    local hardness = blockinfo.BlockHardness.Value
-    while block and block.Parent == workspace do
+    local healthbar = block:FindFirstChild("HealthBar")
+    while block and block.Parent == Workspace do
         if not mining then return end
-        if not isequip(toolname) then 
-            holditem(tool)
-        end
+        if not isequip(toolname) and not backpackfolder:FindFirstChild(toolname) then return end
         click()
         Workspace[PlayerName][toolname].ToolHit:FireServer({{
-            ["healthValue"]    = health,
-            ["blockInfoFolder"] = blockinfo,
-            ["position"]        = position,
-            ["object"]          = block,
-            ["maxHealthValue"]  = maxhealth,
-            ["maxHealth"]       = maxhealthvalue,
-            ["healthBarGui"]    = healthbar,
-            ["hardness"]        = hardness,
-            ["health"]          = health.Value
+            ["healthValue"]=health,
+            ["blockInfoFolder"]=blockinfo,
+            ["position"]=position,
+            ["object"]=block,
+            ["maxHealthValue"]=maxhealth,
+            ["maxHealth"]=maxhealthvalue,
+            ["healthBarGui"]=healthbar,
+            ["hardness"]=hardness.Value,
+            ["health"]=health.Value
         }}, toolname)
         task.wait(hitdelay)
     end
