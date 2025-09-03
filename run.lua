@@ -57,7 +57,6 @@ end
 local function mine(block)
     local tooltype = getrighttool(block)
     local toolname = tools[tooltype]
-    if not toolname then return end
     local tool = backpackfolder:FindFirstChild(toolname)
     if not tool and not isequip(toolname) then return end
     if not isequip(toolname) and tool then
