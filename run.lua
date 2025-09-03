@@ -5,6 +5,8 @@ local Workspace = game:GetService("Workspace")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
+local character = LocalPlayer.Character
+local humanoid = character.Humanoid
 local currentblock = nil
 local hitdelay = 0.2
 local tools = {
@@ -12,15 +14,19 @@ local tools = {
     axe = "Stone Axe",
     shovel = "Stone Shovel"
 } 
+local backpackfolder = LocalPlayer.Backpack
 -- Toggles
 local mining = false
 local looting = false
 -- Connections
 local workspaceconnection
 -- Functions
+local function holditem(tool)
+    humanoid:EquipTool(tool)
+end
 local function getbackpackitem()
     local names = {}
-    for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do
+    for _, i in ipairs(backpackfolder:GetChildren()) do
         table.insert(names, i.Name)
     end
     return names
@@ -44,6 +50,7 @@ end
 local function mine(block)
     currentblock = block
     local toolname = tools[getrighttool(block)]
+    local tool = backpackfolder[toolname]
     local blockinfo = block.BlockInfo
     local maxhealth = blockinfo.MaxHealth
     local health = blockinfo.Health
@@ -53,6 +60,7 @@ local function mine(block)
     local hardness = blockinfo.BlockHardness.Value
     while block and block.Parent == workspace do
         if not mining then return end
+        holditem(tool)
         Workspace[PlayerName][toolname].ToolHit:FireServer({{
             ["healthValue"]    = health,
             ["blockInfoFolder"] = blockinfo,
