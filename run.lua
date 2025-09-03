@@ -88,7 +88,7 @@ end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
     ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
-    task.wait(0.1)
+    task.wait(0.5)
     ReplicatedStorage.LootDestroyed:FireServer(uuid)
 end
 local function updateconnection()
