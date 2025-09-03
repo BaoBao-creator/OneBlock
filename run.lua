@@ -7,6 +7,7 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local toolname = nil
 local currentblock = nil
+local hitdelay = 0.2
 -- Toggles
 local mining = false
 local looting = false
@@ -44,8 +45,9 @@ local function mine(block)
             ["hardness"]        = hardness,
             ["health"]          = health.Value
         }}, toolname)
-        task.wait(0.2)
+        task.wait(hitdelay)
     end
+    currentblock = nil
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
