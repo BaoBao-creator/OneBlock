@@ -8,11 +8,13 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local character = LocalPlayer.Character
 local humanoid = character.Humanoid
+local hrp = character.HumanoidRootPart
 local hitdelay = 0.2
 local tools = {
     pickaxe = "Stone Pickaxe",
     axe = "Stone Axe",
-    shovel = "Stone Shovel"
+    shovel = "Stone Shovel",
+    weapon = "Stone Sword"
 } 
 local backpackfolder = LocalPlayer.Backpack
 -- Toggles
@@ -21,6 +23,18 @@ local looting = false
 -- Connections
 local workspaceconnection
 -- Functions
+local function hit(mob)
+    local weaponname = tools[weapon]
+workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
+workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.AngryMiner1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.AngryMiner1.HumanoidRootPart,["humanoid"] = workspace.AngryMiner1.Humanoid},{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 85,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
+workspace[PlayerName][weaponname].ToolHit:FireServer(weaponname, {{["isNPC"] = true, ["character"] = mob, ["health"] = health
+end
+local function tpis(name)
+    local island = workspace:FindFirstChild(name)
+    if island and island:IsA("Model") then
+        hrp.CFrame = CFrame.new(island.WorldPivot.Position + Vector3.new(0, 20, 0))
+    end
+end
 local function click()
     VIM:SendMouseButtonEvent(9999, 9999, 0, true, game, 0)
     task.wait()
