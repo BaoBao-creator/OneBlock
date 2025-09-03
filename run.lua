@@ -3,13 +3,81 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local VIM = game:GetService("VirtualInputManager")
-local TweenService = game:GetService("TweenService")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local character = LocalPlayer.Character
 local humanoid = character.Humanoid
 local hrp = character.HumanoidRootPart
+------
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+local BASE_THRUST_MULTIPLIER = 1.6
+local BOOST_MULTIPLIER = 2.6
+
+local jetpacking = false
+local boosting = false
+local vf, attach
+local heartbeatConn
+local inputBeganConn
+local inputEndedConn
+
+local function setupForce()
+	if vf then return end
+	attach = Instance.new("Attachment")
+	attach.Parent = hrp
+	vf = Instance.new("VectorForce")
+	vf.Attachment0 = attach
+	vf.RelativeTo = Enum.ActuatorRelativeTo.Attachment
+	vf.ApplyAtCenterOfMass = true
+	vf.Parent = hrp
+end
+
+local function cleanupForce()
+	if vf then vf:Destroy() vf = nil end
+	if attach then attach:Destroy() attach = nil end
+end
+
+local function computeForce(mult)
+	local mass = hrp.AssemblyMass or 80
+	local gravity = workspace.Gravity
+	return Vector3.new(0, mass * gravity * mult, 0)
+end
+
+function ToggleJetpack()
+	jetpacking = not jetpacking
+	if jetpacking then
+		setupForce()
+		heartbeatConn = RunService.Heartbeat:Connect(function()
+			if vf then
+				local mult = boosting and BOOST_MULTIPLIER or BASE_THRUST_MULTIPLIER
+				vf.Force = computeForce(mult)
+			end
+		end)
+		inputBeganConn = UserInputService.InputBegan:Connect(function(input, gp)
+			if gp then return end
+			if input.KeyCode == Enum.KeyCode.Space then
+				boosting = true
+			end
+		end)
+		inputEndedConn = UserInputService.InputEnded:Connect(function(input, gp)
+			if gp then return end
+			if input.KeyCode == Enum.KeyCode.Space then
+				boosting = false
+			end
+		end)
+	else
+		if heartbeatConn then heartbeatConn:Disconnect() heartbeatConn = nil end
+		if inputBeganConn then inputBeganConn:Disconnect() inputBeganConn = nil end
+		if inputEndedConn then inputEndedConn:Disconnect() inputEndedConn = nil end
+		cleanupForce()
+	end
+end
+-----
 local hitdelay = 0.2
 local tools = {
     pickaxe = "Stone Pickaxe",
@@ -30,28 +98,6 @@ local function hit(mob)
 -- workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
 --workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.AngryMiner1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.AngryMiner1.HumanoidRootPart,["humanoid"] = workspace.AngryMiner1.Humanoid},{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 85,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
 --workspace[PlayerName][weaponname].ToolHit:FireServer(weaponname, {{["isNPC"] = true, ["character"] = mob, ["health"] = health
-end
-local function tweenTP(targetPos)
-    local distance = (targetPos - hrp.Position).Magnitude
-    local speed = 50
-    local time = distance / speed
-    local tween = TweenService:Create(
-        hrp,
-        TweenInfo.new(time, Enum.EasingStyle.Linear),
-        {CFrame = CFrame.new(targetPos)}
-    )
-    tween:Play()
-    tween.Completed:Wait()
-end
-local function tpis(name)
-    if name == "Spawn" then
-        tweenTP(Vector3.new(0, 20, 0))
-        return
-    end
-    local island = workspace:FindFirstChild(name)
-    if island and island:IsA("Model") then
-        tweenTP(island.WorldPivot.Position + Vector3.new(0, 20, 0))
-    end
 end
 local function click()
     VIM:SendMouseButtonEvent(9999, 9999, 0, true, game, 0)
@@ -258,13 +304,10 @@ local AutoCollectDropToggle = FarmTab:CreateToggle({
     end
 })
 local TeleportTab = Window:CreateTab("Teleport", 0)
-local IslandToTeleportDropdown = TeleportTab:CreateDropdown({
-    Name = "Island To Teleport",
-    Options = islandlist,
-    CurrentOption = "Spawn",
-    MultipleOptions = false,
-    Flag = "IslandDropdown", 
+local JepackToggle = TeleportTab:CreateToggle({
+    Name = "Jetpack",
+    Flag = "JetpackToggle",
     Callback = function(v)
-        tpis(v)
+        ToggleJetpack()
     end
 })
