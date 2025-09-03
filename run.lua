@@ -43,9 +43,11 @@ local function getrighttool(model)
         ["rbxassetid://96101344191937"] = "axe"
     })[model.HealthBar.Frame.ImageLabel.Image] or "Unknown"
 end
+local function isequip(name)
+    return character:FindFirstChild(name) ~= nil
+end
 local function isblock(obj)
-    if obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then return true end
-    return false
+    return obj:FindFirstChild("BlockInfo") ~= nil
 end
 local function isdrop(obj)
     if obj:IsA("Model") and obj:FindFirstChild("INFO") and obj:GetAttribute("UUID") then return true end
@@ -64,7 +66,9 @@ local function mine(block)
     local hardness = blockinfo.BlockHardness.Value
     while block and block.Parent == workspace do
         if not mining then return end
-        holditem(tool)
+        if not isequip(toolname) then 
+            holditem(tool)
+        end
         click()
         Workspace[PlayerName][toolname].ToolHit:FireServer({{
             ["healthValue"]    = health,
