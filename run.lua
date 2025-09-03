@@ -5,12 +5,13 @@ local Workspace = game:GetService("Workspace")
 -- Data
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
-local toolname = nil
 local currentblock = nil
 local hitdelay = 0.2
-local pickaxe = "Stone Pickaxe"
-local axe = "Stone Axe"
-local shovel = "Stone Shovel"
+local tools = {
+    pickaxe = "Stone Pickaxe",
+    axe = "Stone Axe",
+    shovel = "Stone Shovel"
+} 
 -- Toggles
 local mining = false
 local looting = false
@@ -42,8 +43,7 @@ end
 local function mine(block)
     if not toolname then return end
     currentblock = block
-    local righttool = getrighttool(block)
-    toolname = _G(
+    local toolname = tools[getrighttool(block)]
     local blockinfo = block.BlockInfo
     local maxhealth = blockinfo.MaxHealth
     local health = blockinfo.Health
@@ -70,8 +70,8 @@ local function mine(block)
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
-    ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
     ReplicatedStorage.LootDestroyed:FireServer(uuid)
+    ReplicatedStorage.RequestLootPickup:InvokeServer(uuid)
 end
 local function updateconnection()
     if (mining or looting) and not workspaceconnection then
@@ -153,7 +153,7 @@ local PickaxeDropdown = FarmTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "PickaxeDropdown", 
     Callback = function(v)
-        pickaxe = v
+        tools["pickaxe"] = v
     end
 })
 local AxeDropdown = FarmTab:CreateDropdown({
@@ -163,7 +163,7 @@ local AxeDropdown = FarmTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "AxeDropdown", 
     Callback = function(v)
-        axe = v
+        tools["axe"] = v
     end
 })
 local ShovelDropdown = FarmTab:CreateDropdown({
@@ -173,7 +173,7 @@ local ShovelDropdown = FarmTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "ShovelDropdown", 
     Callback = function(v)
-        shovel = v
+        tools["shovel"] = v
     end
 })
 local RefreshBackpackButton = FarmTab:CreateButton({
