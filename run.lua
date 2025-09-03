@@ -8,17 +8,27 @@ local PlayerName = LocalPlayer.Name
 local toolname = nil
 local currentblock = nil
 local hitdelay = 0.2
+local pickaxe = "Stone Pickaxe"
+local axe = "Stone Axe"
+local shovel = "Stone Shovel"
 -- Toggles
 local mining = false
 local looting = false
 -- Connections
 local workspaceconnection
 -- Functions
+local function getbackpackitem()
+    local names = {}
+    for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        table.insert(names, i.Name)
+    end
+end
+local backpack = getbackpackitem()
 local function getrighttool(model)
     return ({
-        ["rbxassetid://128935722146837"] = "Shovel",
-        ["rbxassetid://113939170676272"] = "Pickaxe",
-        ["rbxassetid://96101344191937"] = "Axe"
+        ["rbxassetid://128935722146837"] = "shovel",
+        ["rbxassetid://113939170676272"] = "pickaxe",
+        ["rbxassetid://96101344191937"] = "axe"
     })[model.HealthBar.Frame.ImageLabel.Image] or "Unknown"
 end
 local function isblock(obj)
@@ -32,6 +42,8 @@ end
 local function mine(block)
     if not toolname then return end
     currentblock = block
+    local righttool = getrighttool(block)
+    toolname = _G(
     local blockinfo = block.BlockInfo
     local maxhealth = blockinfo.MaxHealth
     local health = blockinfo.Health
@@ -132,6 +144,45 @@ local HitDelaySlider = FarmTab:CreateSlider({
     Flag = "HitDelaySlider",
     Callback = function(v)
         hitdelay = v
+    end
+})
+local PickaxeDropdown = FarmTab:CreateDropdown({
+    Name = "Pickaxe To Use",
+    Options = backpack,
+    CurrentOption = "Stone Pickaxe",
+    MultipleOptions = false,
+    Flag = "PickaxeDropdown", 
+    Callback = function(v)
+        pickaxe = v
+    end
+})
+local AxeDropdown = FarmTab:CreateDropdown({
+    Name = "Axe To Use",
+    Options = backpack,
+    CurrentOption = "Stone Axe",
+    MultipleOptions = false,
+    Flag = "AxeDropdown", 
+    Callback = function(v)
+        axe = v
+    end
+})
+local ShovelDropdown = FarmTab:CreateDropdown({
+    Name = "Shovel To Use",
+    Options = backpack,
+    CurrentOption = "Stone Shovel",
+    MultipleOptions = false,
+    Flag = "ShovelDropdown", 
+    Callback = function(v)
+        shovel = v
+    end
+})
+local RefreshBackpackButton = FarmTab:CreateButton({
+    Name = "Refresh Backpack",
+    Callback = function()
+        backpack = getbackpackitem()
+        PickaxeDropdown:Refresh(backpack)
+        AxeDropdown:Refresh(backpack)
+        ShovelDropdown:Refresh(backpack)
     end
 })
 local AutoCollectDropToggle = FarmTab:CreateToggle({
