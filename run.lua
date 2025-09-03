@@ -45,7 +45,7 @@ local function getrighttool(model)
     })[model.HealthBar.Frame.ImageLabel.Image] or "Unknown"
 end
 local function isequip(name)
-    return character:FindFirstChild(name) ~= nil
+    return workspace[PlayerName]:FindFirstChild(name) ~= nil
 end
 local function isblock(obj)
     return obj:FindFirstChild("BlockInfo") ~= nil
