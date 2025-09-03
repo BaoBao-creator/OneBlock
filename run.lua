@@ -6,6 +6,7 @@ local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local toolname = nil
+local currentblock = nil
 -- Toggles
 local mining = false
 local looting = false
@@ -22,8 +23,9 @@ local function isdrop(obj)
 end
 local function mine(block)
     if not toolname then return end
+    currentblock = block
     local blockinfo = block.BlockInfo
-    local maxhealth = blockIinfo.MaxHealth
+    local maxhealth = blockinfo.MaxHealth
     local health = blockinfo.Health
     local position = block.WorldPivot.Position
     local maxhealthvalue = maxhealth.Value
@@ -66,15 +68,20 @@ end
 local function automine(state)
     mining = state
     if mining then
-        for _, obj in ipairs(Workspace:GetChildren()) do
-            if isblock(obj) then
-                mine(obj)
+        if currentblock then
+            mine(currentblock)
+        else
+            for _, obj in ipairs(Workspace:GetChildren()) do
+                if isblock(obj) then
+                    mine(obj)
+                    break
+                end
             end
         end
     end
     updateconnection()
 end
-local function autoLoot(state)
+local function autoloot(state)
     looting = state
     if looting then
         for _, drop in ipairs(Workspace:GetChildren()) do
