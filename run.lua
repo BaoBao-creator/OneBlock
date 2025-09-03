@@ -14,6 +14,13 @@ local looting = false
 -- Connections
 local workspaceconnection
 -- Functions
+local function getrighttool(model)
+    return ({
+        ["rbxassetid://128935722146837"] = "Shovel",
+        ["rbxassetid://113939170676272"] = "Pickaxe",
+        ["rbxassetid://96101344191937"] = "Axe"
+    })[model.HealthBar.Frame.ImageLabel.Image] or "Unknown"
+end
 local function isblock(obj)
     if obj:IsA("Model") and obj:FindFirstChild("BlockInfo") then return true end
     return false
