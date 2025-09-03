@@ -8,7 +8,6 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local character = LocalPlayer.Character
 local humanoid = character.Humanoid
-local currentblock = nil
 local hitdelay = 0.2
 local tools = {
     pickaxe = "Stone Pickaxe",
@@ -54,7 +53,6 @@ local function isdrop(obj)
     return false
 end
 local function mine(block)
-    currentblock = block
     local toolname = tools[getrighttool(block)]
     local tool = backpackfolder[toolname]
     local blockinfo = block.BlockInfo
@@ -83,7 +81,6 @@ local function mine(block)
         }}, toolname)
         task.wait(hitdelay)
     end
-    currentblock = nil
 end
 local function loot(drop)
     local uuid = drop:GetAttribute("UUID")
@@ -107,9 +104,6 @@ local function automine(state)
     mining = state
     if mining then
         task.spawn(function()
-            if currentblock then
-                mine(currentblock)
-            end
             while mining do
                 for _, obj in ipairs(Workspace:GetChildren()) do
                     if isblock(obj) then
