@@ -17,6 +17,7 @@ local tools = {
     weapon = "Stone Sword"
 } 
 local backpackfolder = LocalPlayer.Backpack
+local islandlist = {"Spawn", "LargeIsland1", "LagerIsland2", "LargeIsland3", "LargeIsland4", "SmallIsland1", "SmallIsland2", "SmallIsland3", "SmallIsland4"}
 -- Toggles
 local mining = false
 local looting = false
@@ -25,11 +26,13 @@ local workspaceconnection
 -- Functions
 local function hit(mob)
     local weaponname = tools[weapon]
-workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
-workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.AngryMiner1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.AngryMiner1.HumanoidRootPart,["humanoid"] = workspace.AngryMiner1.Humanoid},{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 85,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
-workspace[PlayerName][weaponname].ToolHit:FireServer(weaponname, {{["isNPC"] = true, ["character"] = mob, ["health"] = health
+-- workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
+--workspace.luxurysigma["Stone Sword"].ToolHit:FireServer("Stone Sword",{{["isNPC"] = true,["character"] = workspace.AngryMiner1,["health"] = 100,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.AngryMiner1.HumanoidRootPart,["humanoid"] = workspace.AngryMiner1.Humanoid},{["isNPC"] = true,["character"] = workspace.Zombie1,["health"] = 85,["position"] = ,["maxHealth"] = 100,["humanoidRootPart"] = workspace.Zombie1.HumanoidRootPart,["humanoid"] = workspace.Zombie1.Humanoid}})
+--workspace[PlayerName][weaponname].ToolHit:FireServer(weaponname, {{["isNPC"] = true, ["character"] = mob, ["health"] = health
 end
 local function tpis(name)
+    if name == "Spawn" then
+        hrp.CFrame = CFrame.new(Vector3.new(0, 20, 0))
     local island = workspace:FindFirstChild(name)
     if island and island:IsA("Model") then
         hrp.CFrame = CFrame.new(island.WorldPivot.Position + Vector3.new(0, 20, 0))
@@ -237,5 +240,17 @@ local AutoCollectDropToggle = FarmTab:CreateToggle({
     Flag = "AutoCollectDropToggle",
     Callback = function(v)
         autoloot(v)
+    end
+})
+local TeleportTab = Window:CreateTab("Teleport", 0)
+local IslandToTeleportDropdown = TeleportTab:CreateDropdown({
+    Name = "Island To Teleport",
+    Options = islandlist,
+    CurrentOption = "Spawn",
+    MultipleOptions = false,
+    Flag = "IslandDropdown", 
+    Callback = function(v)
+        if v == "Spawn" then
+            
     end
 })
