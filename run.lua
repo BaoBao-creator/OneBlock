@@ -45,7 +45,7 @@ local function tweenTP(targetPos)
 end
 local function tpis(name)
     if name == "Spawn" then
-        hrp.CFrame = CFrame.new(Vector3.new(0, 20, 0))
+        tweenTP(Vector3.new(0, 20, 0))
         return
     end
     local island = workspace:FindFirstChild(name)
